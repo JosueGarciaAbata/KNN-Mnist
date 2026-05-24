@@ -14,7 +14,7 @@ def mostrar_comparacion_metricas(y_real, predicciones_por_metrica):
             zero_division=0,
             output_dict=True,
         )
-        reporte_df = pd.DataFrame(reporte).T.round(3)
+        reporte_df = pd.DataFrame(reporte).T.loc[[str(i) for i in range(10)]].round(3)
         accuracy = accuracy_score(y_real, y_pred)
 
         html = f"<h3>{nombre}</h3>"

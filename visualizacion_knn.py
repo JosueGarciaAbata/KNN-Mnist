@@ -124,12 +124,6 @@ def mostrar_pca_lote(
     X_voronoi_pca = pca.transform(X_train_flat[:cantidad_voronoi])
     y_voronoi = contexto["y_train_knn"][:cantidad_voronoi]
 
-    clasificador_2d = KNeighborsClassifier(
-        n_neighbors=k,
-        metric="manhattan",
-    )
-    clasificador_2d.fit(X_voronoi_pca, y_voronoi)
-
     margen = 0.8
     x_min = X_voronoi_pca[:, 0].min() - margen
     x_max = X_voronoi_pca[:, 0].max() + margen
@@ -141,7 +135,6 @@ def mostrar_pca_lote(
         np.linspace(y_min, y_max, resolucion),
     )
     puntos_grid = np.c_[xx.ravel(), yy.ravel()]
-    predicciones_grid = clasificador_2d.predict(puntos_grid).reshape(xx.shape)
 
     y_real = np.array(y_real)
     cantidad_metricas = len(predicciones_por_metrica)
@@ -157,6 +150,14 @@ def mostrar_pca_lote(
     for ax, (nombre, y_pred) in zip(axes, predicciones_por_metrica.items()):
         y_pred = np.array(y_pred)
         errores = y_pred != y_real
+        metrica_2d = _obtener_metrica_sklearn(nombre)
+
+        clasificador_2d = KNeighborsClassifier(
+            n_neighbors=k,
+            metric=metrica_2d,
+        )
+        clasificador_2d.fit(X_voronoi_pca, y_voronoi)
+        predicciones_grid = clasificador_2d.predict(puntos_grid).reshape(xx.shape)
 
         ax.contourf(
             xx,
@@ -184,7 +185,7 @@ def mostrar_pca_lote(
             label="Incorrectas",
         )
 
-        ax.set_title(f"Celdas Pca - {nombre_modelo}")
+        ax.set_title(f"Celdas Pca - {nombre}")
         ax.set_xlabel("Componente principal 1")
         ax.set_ylabel("Componente principal 2")
         ax.legend()
@@ -239,10 +240,11 @@ def mostrar_prediccion_individual(
         cantidad_voronoi = min(cantidad_entrenamiento_voronoi, cantidad_entrenamiento)
         X_voronoi_pca = pca.transform(X_train_flat[:cantidad_voronoi])
         y_voronoi = y_train_knn[:cantidad_voronoi]
+        metrica_2d = _obtener_metrica_sklearn(nombre_modelo)
 
         clasificador_2d = KNeighborsClassifier(
             n_neighbors=k,
-            metric="manhattan",
+            metric=metrica_2d,
         )
         clasificador_2d.fit(X_voronoi_pca, y_voronoi)
 
@@ -409,3 +411,13 @@ def _crear_columnas(contenidos_html):
         + "".join(f"<div>{contenido}</div>" for contenido in contenidos_html)
         + "</div>"
     )
+
+
+def _obtener_metrica_sklearn(nombre):
+    metricas = {
+        "euclidiana": "euclidean",
+        "manhattan": "manhattan",
+        "hamming": "hamming",
+    }
+
+    return metricas.get(nombre.lower(), "manhattan")

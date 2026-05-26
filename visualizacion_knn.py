@@ -16,9 +16,11 @@ def mostrar_comparacion_metricas(y_real, predicciones_por_metrica):
         )
         reporte_df = pd.DataFrame(reporte).T.loc[[str(i) for i in range(10)]].round(3)
         accuracy = accuracy_score(y_real, y_pred)
+        error_clasificacion = 1 - accuracy
 
         html = f"<h3>{nombre}</h3>"
         html += f"<p><b>Accuracy:</b> {accuracy:.4f}</p>"
+        html += f"<p><b>Error de clasificacion:</b> {error_clasificacion:.4f}</p>"
         html += reporte_df.to_html()
         resumenes.append(html)
 
@@ -96,7 +98,7 @@ def mostrar_pca_lote(
     contexto,
     y_real,
     predicciones_por_metrica,
-    nombre_modelo="Manhattan",
+    nombre_modelo="Euclidiana",
     k=3,
     cantidad_entrenamiento_voronoi=1000,
     resolucion=160,
@@ -339,7 +341,7 @@ def mostrar_individuo(modelo, contexto, indice=0, nombre_modelo="KNN"):
 
 def mostrar_celdas_voronoi_pca(
     contexto,
-    nombre_modelo="Manhattan",
+    nombre_modelo="Euclidiana",
     k=3,
     cantidad_entrenamiento_voronoi=1000,
     resolucion=180,
@@ -361,7 +363,7 @@ def mostrar_celdas_voronoi_pca(
 
     clasificador_2d = KNeighborsClassifier(
         n_neighbors=k,
-        metric="manhattan",
+        metric=_obtener_metrica_sklearn(nombre_modelo),
     )
     clasificador_2d.fit(X_train_pca, y_train)
 
@@ -420,4 +422,4 @@ def _obtener_metrica_sklearn(nombre):
         "hamming": "hamming",
     }
 
-    return metricas.get(nombre.lower(), "manhattan")
+    return metricas.get(nombre.lower(), "euclidean")

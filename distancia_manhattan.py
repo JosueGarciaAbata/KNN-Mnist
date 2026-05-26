@@ -1,10 +1,10 @@
-def distancia_manhattan(punto_a, punto_b):
-    if len(punto_a) != len(punto_b):
-        raise ValueError("Los puntos deben tener la misma cantidad de caracteristicas")
+import numpy as np
 
-    suma = 0
 
-    for i in range(len(punto_a)):
-        suma += abs(punto_a[i] - punto_b[i])
+def distancias_manhattan(X_test, X_train, normas_entrenamiento=None):
+    bloques = []
 
-    return suma
+    for x in X_test:
+        bloques.append(np.sum(np.abs(X_train - x), axis=1))
+
+    return np.vstack(bloques)

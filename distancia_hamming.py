@@ -1,11 +1,10 @@
-def distancia_hamming(punto_a, punto_b):
-    if len(punto_a) != len(punto_b):
-        raise ValueError("Los puntos deben tener la misma cantidad de caracteristicas")
+import numpy as np
 
-    diferencias = 0
 
-    for i in range(len(punto_a)):
-        if punto_a[i] != punto_b[i]:
-            diferencias += 1
+def distancias_hamming(X_test, X_train, normas_entrenamiento=None):
+    bloques = []
 
-    return diferencias
+    for x in X_test:
+        bloques.append(np.mean(X_train != x, axis=1))
+
+    return np.vstack(bloques)

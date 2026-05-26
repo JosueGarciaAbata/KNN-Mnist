@@ -10,7 +10,6 @@ class KNN:
         self.batch_size = batch_size
         self.X_train = None
         self.y_train = None
-        self.normas_entrenamiento = None
 
     def entrenar(self, X_train, y_train):
         self.X_train = np.asarray(X_train, dtype=np.float32)
@@ -21,8 +20,6 @@ class KNN:
 
         if len(self.X_train) != len(self.y_train):
             raise ValueError("X_train y y_train deben tener la misma cantidad de observaciones")
-
-        self.normas_entrenamiento = np.sum(self.X_train * self.X_train, axis=1)
 
     def predecir(self, x):
         return int(self.predecir_en_lote([x], batch_size=1)[0])
@@ -45,11 +42,7 @@ class KNN:
         for inicio in range(0, X_test.shape[0], batch_size):
             fin = min(inicio + batch_size, X_test.shape[0])
             X_lote = X_test[inicio:fin]
-            distancias = self.distancia(
-                X_lote,
-                self.X_train,
-                self.normas_entrenamiento,
-            )
+            distancias = self.distancia(X_lote, self.X_train)
             predicciones[inicio:fin] = self._votar_lote(distancias)
 
         return predicciones.tolist()
